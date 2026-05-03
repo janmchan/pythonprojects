@@ -1,6 +1,7 @@
 class Player:
+    Size = 6
     def __init__(self):
-        self.Holes = [4] * 6  # each player gets their own list
+        self.Holes = [4] * self.Size   # each player gets their own list
         self.Mancala = 0
 
 class Game:
@@ -23,31 +24,50 @@ class Game:
          self.turn = 2
       else:
          self.turn = 1
-   def PlayerMove(self, hole:int):
-      marbles = self.current_player.Holes[hole]
-      print('Current marbles ' + str(marbles))
-      self.current_player.Holes[hole] = 0 # empty the hole
-      # todo implement correct logic for game
-      nextHole = hole
-      while marbles != 0:
-         nextHole += 1
-         if nextHole < len(self.current_player.Holes):
-             self.current_player.Holes[nextHole]  +=1
-         else:
-          print('next move')
-         marbles -= 1
 
+   def PlayerMove(self, hole:int):
+      playerSide = True
+      marbles = self.current_player.Holes[hole]
+      holes = self.current_player.Holes
+      #print('Current marbles ' + str(marbles))
+      holes[hole] = 0 # empty the hole
+      #print('Remove marbles')
+      print(self.current_player.Holes)
+      # todo implement correct logic for game
+      nextHole = hole + 1
+      while marbles != 0:
+         if nextHole >= Player.Size and marbles > 0:
+            nextHole = 0
+            if playerSide:
+                #print('Mancala!')
+                #print(self.current_player.Holes)
+                self.current_player.Mancala += 1
+                holes = self.other_player.Holes
+                marbles -= 1
+                nextHole = 0
+            else:
+                holes = self.current_player
+         if marbles > 0:
+             holes[nextHole]  +=1
+             nextHole += 1
+             marbles -= 1
+             #print('Normal move')
+             print(holes)
+   def PrintStatus(self):
+         print('---------status---------')
+         print('next:' + str(self.current_player.Holes))
+         print('next:' + str(self.current_player.Mancala))
+         print('last:' + str(self.other_player.Holes))
+         print('last:' + str(self.other_player.Mancala))
    def GameStart(self):
+      self.PrintStatus()
       while sum(self.current_player.Holes) !=0 or sum(self.other_player.Holes) !=0:
          move = input('Player ' + str(self.turn) + ', Choose a hole number (1-6)')
          print('you chose ' + move + ', player ' + str(self.turn) + ' turn.')
          self.PlayerMove(int(move) - 1)
          self.switch_turn()
-         print(self.current_player.Holes)
-         print(self.current_player.Mancala)
-         print(self.other_player.Holes)
-         print(self.other_player.Mancala)
-
+         self.PrintStatus()
+   
          
 g = Game()
 g.GameStart()
