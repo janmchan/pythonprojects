@@ -1,76 +1,72 @@
-class Player:
-    Size = 6
-    def __init__(self):
-        self.Holes = [4] * self.Size   # each player gets their own list
-        self.Mancala = 0
+import mancala_player as mp
 
-class Game:
+class MancalaGame:
    def __init__(self):
-        self.players = [Player(), Player()]  # two players
-        self.turn = 1
+        self.players = [mp.Player(1), mp.Player(2)]  # two players
+        self.player_index = 0
    @property
    def current_player(self):
-        return self.players[self.turn]
+        return self.players[self.player_index]
 
    @property
    def other_player(self):
-        return self.players[1 - self.turn]
+        return self.players[1 - self.player_index]
 
    def switch_turn(self):
-        self.turn = 1 - self.turn
+        self.player_index = 1 - self.player_index
 
-   def IncrementTurn(self):
-      if self.turn % 2 == 1:
-         self.turn = 2
-      else:
-         self.turn = 1
-
-   def PlayerMove(self, hole:int):
-      playerSide = True
+   def player_move(self, choice:int):
+      hole = choice - 1 # change to index
+      player_side = True
       marbles = self.current_player.Holes[hole]
       holes = self.current_player.Holes
       #print('Current marbles ' + str(marbles))
       holes[hole] = 0 # empty the hole
       #print('Remove marbles')
-      print(self.current_player.Holes)
-      # todo implement correct logic for game
-      nextHole = hole + 1
+      #print(self.current_player.Holes)
+      # todo implement correct logic for Game
+      next_hole = hole + 1
       while marbles != 0:
-         if nextHole >= Player.Size and marbles > 0:
-            nextHole = 0
-            if playerSide:
+         if next_hole >= mp.Player.Size and marbles > 0:
+            next_hole = 0
+            if player_side:
                 #print('Mancala!')
                 #print(self.current_player.Holes)
                 self.current_player.Mancala += 1
                 holes = self.other_player.Holes
                 marbles -= 1
-                nextHole = 0
+                next_hole = 0
             else:
                 holes = self.current_player
          if marbles > 0:
-             holes[nextHole]  +=1
-             nextHole += 1
+             holes[next_hole]  +=1
+             next_hole += 1
              marbles -= 1
              #print('Normal move')
-             print(holes)
-   def PrintStatus(self):
-         print('---------status---------')
-         print('next:' + str(self.current_player.Holes))
-         print('next:' + str(self.current_player.Mancala))
-         print('last:' + str(self.other_player.Holes))
-         print('last:' + str(self.other_player.Mancala))
-   def GameStart(self):
-      self.PrintStatus()
+             
+   def print_status(self):
+         print('Game of Mancala'.center(30, '#'))
+         print('next player {0} Score: {1}'.format(self.current_player.Holes, self.current_player.Mancala))
+         print('last player {0} Score: {1}'.format(self.other_player.Holes, self.other_player.Mancala))
+   def game_start(self):
+      self.print_status()
       while sum(self.current_player.Holes) !=0 or sum(self.other_player.Holes) !=0:
-         move = input('Player ' + str(self.turn) + ', Choose a hole number (1-6)')
-         print('you chose ' + move + ', player ' + str(self.turn) + ' turn.')
-         self.PlayerMove(int(move) - 1)
-         self.switch_turn()
-         self.PrintStatus()
-   
-         
-g = Game()
-g.GameStart()
+          try:
+            move = input('Player {0}, Choose a hole number (1-6) or 0 to exit: '.format(self.current_player.Order))
+            #validate input
+            if move == '0':
+               print('Thank you for playing')    
+               return
+            choice = int(move)
+            if  choice < 0 or choice > mp.Player.Size:
+               print("Enter a number between 1 and 6")
+               continue
+
+            self.player_move(choice)
+            self.switch_turn()
+            self.print_status()
+          except ValueError:
+              print("Enter a number between 1 and 6")         
 
 
 
